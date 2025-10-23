@@ -22,11 +22,11 @@ Transforme sua implantação de infraestrutura AWS com estes templates que demon
 
 ## 📚 Coleção de Templates
 
-<img src="images/lab-EC2.png" alt="lab EC2" align="right" width="400"/>
-
 ### 1. EC2 Básico (`01-EC2.yaml`)
 - 🚀 Implantação simples de instância EC2
 - 💻 AMI e tipo de instância fixos
+
+<img src="images/lab-EC2.png" alt="lab EC2" align="right" width="400"/>
 
  ```yaml
 Resources:
@@ -41,13 +41,12 @@ Resources:
           Value: "EC2"  
   ```
 
-<img src="images/ApacheWeb.png" alt="lab-Apache" align="right" width="400"/>
-
-
 ### 2. Servidor Apache (`02-Apache.yaml`)
 - 🌐 Instalação automatizada do Apache
 - 🔄 Configuração do serviço com UserData
 - 📝 Configuração de página de boas-vindas personalizada
+
+<img width="400" height="271" alt="ApacheWeb" align="right" src="https://github.com/user-attachments/assets/c6a6c4e8-1543-420e-9a3b-d24992397f78" />
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -87,6 +86,8 @@ Resources:
           systemctl enable httpd
           echo "<h1>OLA AWS FOUNDATIONS do $(hostname -f)</h1>" > /var/www/html/index.html
 ```
+<img width="600" height="258" alt="validaApache2" src="https://github.com/user-attachments/assets/8b29fe81-364a-4fb1-bb9b-37e893ba740d" />
+<img width="600" height="300" alt="Captura de tela 2025-10-23 142645" src="https://github.com/user-attachments/assets/c8a02cde-72b9-4291-bf51-f3e3107d85b8" />
 
 ### 3. Configuração de Firewall (`03-Firewall.yaml`)
 - 🛡️ Configuração de grupo de segurança
@@ -125,6 +126,8 @@ Resources:
         ToPort: 80
         CidrIp: 0.0.0.0/0
 ```
+<img width="600" height="399" alt="validaFirewall2" src="https://github.com/user-attachments/assets/5ecbedc1-fb6c-40d9-ba1c-cc3e88466403" />
+<img width="600" height="309" alt="firewall" src="https://github.com/user-attachments/assets/286aadd8-d7e5-456b-979a-162cbea63143" />
 
 ### 4. Infraestrutura Completa (`04-EC2_S3_UserGroup.yaml`)
 - 🏗️ Implantação full stack
@@ -215,6 +218,8 @@ Outputs:
     Description: Nome do usuário IAM
     Value: !Ref IAMUser
 ```
+<img width="600" height="284" alt="completo2" src="https://github.com/user-attachments/assets/515cd694-0a39-4917-9127-5a23bf4c899e" />
+<img width="600" height="250" alt="completo1" src="https://github.com/user-attachments/assets/65f56ae2-6e59-4530-ac06-64c3b1f3a21a" />
 
 ## 🚀 Começando
 
@@ -257,7 +262,9 @@ Modificações Necessárias:
 
 ### 🔍 Validação de Recursos
 
-<img src="images/stacks.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
+<img width="600" height="200" alt="stacks" src="https://github.com/user-attachments/assets/598b632e-c287-47e1-a393-e34ed437e86c" />
+<img width="680" height="200" alt="instancias" src="https://github.com/user-attachments/assets/7fdb846f-f407-4485-bf8b-c5e63f478a8a" />
+
 
 #### Instâncias EC2
 1. Acesse o Painel EC2
@@ -268,9 +275,6 @@ Modificações Necessárias:
 1. Acesse `http://<PublicIP>`
 2. Verifique a página de boas-vindas
 3. Teste a acessibilidade HTTP
-
-<img src="images/validaApache1.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
-<img src="images/validaApache2.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
 
 #### Bucket S3
 1. Abra o Console S3
@@ -284,9 +288,10 @@ Modificações Necessárias:
 
 ## 📸 Capturas de Tela da Implementação
 
-### Criação da Stack
-<img src="images/stack.png" alt="Criação da Stack CloudFormation" width="800"/>
-
+<img width="600" height="250" alt="ec2-criado" src="https://github.com/user-attachments/assets/e489ecb9-6f9e-4aaa-9194-3980049e845f" />
+<img width="600" height="250" alt="firewall-criado" src="https://github.com/user-attachments/assets/c4cfa355-05da-4327-b3bb-b39fdeb1a64c" />
+<img width="600" height="200" alt="apache-criado" src="https://github.com/user-attachments/assets/08fc5ddc-5428-4895-aec7-4d3c475709c9" />
+<img width="600" height="200" alt="completo-criado" src="https://github.com/user-attachments/assets/292ace67-b38c-4f52-8d6e-e4d759519c94" />
 
 ## 🧹 Instruções de Limpeza
 
@@ -297,7 +302,6 @@ Para evitar cobranças desnecessárias da AWS:
 3. Clique em "Excluir Stack"
 4. Confirme a exclusão
 
-<img src="images/cleanup.png" alt="Processo de Limpeza" width="600"/>
 
 
 </div>
