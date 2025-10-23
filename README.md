@@ -1,7 +1,7 @@
 # ☁️ Laboratório AWS CloudFormation - Infraestrutura como Código
 
 <div align="center">
-  <img src="images/aws-cloudformation-banner.png" alt="AWS CloudFormation Banner" width="800"/>
+  <img src="images/cloudformation-banner2.png" alt="AWS CloudFormation Banner" width="800"/>
   
   [![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
   [![IaC](https://img.shields.io/badge/Infraestrutura_como_Código-%23326CE5.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/cloudformation/)
