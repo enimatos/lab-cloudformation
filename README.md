@@ -29,10 +29,50 @@ Transforme sua implantação de infraestrutura AWS com estes templates que demon
 - 💻 AMI e tipo de instância fixos
 - Perfeito para começar!
 
+
 ### 2. Servidor Apache (`02-Apache.yaml`)
 - 🌐 Instalação automatizada do Apache
 - 🔄 Configuração do serviço com UserData
 - 📝 Configuração de página de boas-vindas personalizada
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Instalar Servidor Apache
+
+Resources:
+  # Grupo de segurança permitindo acesso HTTP
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permitir acesso HTTP
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  # Instância EC2 com Apache
+  MinhaInstancia:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0c02fb55956c7d316  # Amazon Linux 2 para us-east-1
+      InstanceType: t2.micro
+      KeyName: sua-chave-ssh  # Substitua pelo nome do seu par de chaves
+      SecurityGroups:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: Webserver-Apache
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          echo "<h1>OLA AWS FOUNDATIONS do $(hostname -f)</h1>" > /var/www/html/index.html
+```
 
 ### 3. Configuração de Firewall (`03-Firewall.yaml`)
 - 🛡️ Configuração de grupo de segurança
