@@ -1,11 +1,11 @@
 # ☁️ Laboratório AWS CloudFormation - Infraestrutura como Código
 
 <div align="center">
-  <img src="images/cloudformation-banner2.png" alt="AWS CloudFormation Banner" width="800"/>
+  <img src="images/cloudformation-banner.png" alt="AWS CloudFormation Banner" width="500"/>
   
   [![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
   [![IaC](https://img.shields.io/badge/Infraestrutura_como_Código-%23326CE5.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/cloudformation/)
-  [![License](https://img.shields.io/badge/licença-MIT-blue.svg?style=for-the-badge)](LICENSE)
+  
 </div>
 
 ## 🌟 Visão Geral
@@ -22,12 +22,26 @@ Transforme sua implantação de infraestrutura AWS com estes templates que demon
 
 ## 📚 Coleção de Templates
 
-<img src="images/template-structure.png" alt="Estrutura dos Templates" align="right" width="400"/>
+<img src="images/lab-EC2.png" alt="lab EC2" align="right" width="400"/>
 
 ### 1. EC2 Básico (`01-EC2.yaml`)
 - 🚀 Implantação simples de instância EC2
 - 💻 AMI e tipo de instância fixos
-- Perfeito para começar!
+
+ ```yaml
+Resources:
+  MinhaInstancia:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0ed9277fb7eb570c9
+      InstanceType: t2.micro
+      Tags :
+        - Key: "Name"
+          Value: "EC2"  
+  ```
+
+<img src="images/ApacheWeb.png" alt="lab-Apache" align="right" width="400"/>
 
 
 ### 2. Servidor Apache (`02-Apache.yaml`)
@@ -79,11 +93,128 @@ Resources:
 - 🌍 Acesso HTTP (Porta 80)
 - 🔒 Gerenciamento de tráfego web
 
+```yaml
+Resources:
+  MinhaInstancia:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0ed9277fb7eb570c9
+      InstanceType: t2.micro
+      Tags :
+        - Key: "Name"
+          Value: "Webserver-Firewall"
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -xe
+            yum install -y httpd.x86_64
+            systemctl start httpd.service
+            systemctl enable httpd.service
+            echo "<h1>OLA AWS FOUNDATIONS do $(hostname -f)</h1>" > /var/www/html/index.html
+      SecurityGroups:
+      - !Ref GrupoSeguranca
+
+  GrupoSeguranca:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Acesso Liberado Porta 80
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+```
+
 ### 4. Infraestrutura Completa (`04-EC2_S3_UserGroup.yaml`)
 - 🏗️ Implantação full stack
 - 📦 Criação de bucket S3
 - 👥 Gerenciamento de usuário/grupo IAM
 - 🔐 Grupo de segurança com acesso SSH
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation Template para EC2 com Apache, IAM e S3
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    Description: Tipo de instância EC2 (AMD64/x86_64)
+    AllowedValues:
+      - t2.micro
+      - t3.micro
+    ConstraintDescription: Deve ser um tipo válido de instância EC2 AMD64.
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: s3-foundatiion-ejfm-dio
+
+  IAMGroup:
+    Type: 'AWS::IAM::Group'
+    Properties:
+      GroupName: GPO-ADMIN-LAB
+
+  IAMUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: administrator-test
+      Groups:
+        - !Ref IAMGroup
+
+  EC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Acesso SSH e HTTP
+      VpcId: vpc-05df2006425ca3f72
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !FindInMap [UbuntuMap, !Ref "AWS::Region", UbuntuAMI]
+      KeyName: ChavesLinux
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: subnet-xxxxxxxx  # Substitua pelo ID da sua sub-rede pública
+          GroupSet:
+            - !Ref EC2SecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update
+          apt-get install -y apache2
+          systemctl start apache2
+          systemctl enable apache2
+
+Mappings:
+  UbuntuMap:
+    us-east-1:
+      UbuntuAMI: ami-0c398cb65a93047f2
+
+Outputs:
+  InstanceId:
+    Description: ID da instância EC2
+    Value: !Ref EC2Instance
+  S3BucketName:
+    Description: Nome do bucket S3
+    Value: !Ref S3Bucket
+  IAMUserName:
+    Description: Nome do usuário IAM
+    Value: !Ref IAMUser
+```
 
 ## 🚀 Começando
 
@@ -96,13 +227,10 @@ Antes de começar, certifique-se de ter:
 ✅ Par de chaves SSH (KeyPair) criado em sua região de destino
 ⚠️ Nota: Nomes de buckets S3 devem ser globalmente únicos
 
-<img src="images/prerequisites.png" alt="Visão Geral dos Pré-requisitos" width="600"/>
 
-### 🖥️ Métodos de Implantação
+### 🖥️ Método de Implantação utilizado
 
 #### Via Console AWS
-
-<img src="images/console-deployment.png" alt="Passos de Implantação no Console" align="right" width="400"/>
 
 1. Navegue até o AWS CloudFormation
 2. Clique em "Criar Stack" → "Com novos recursos (padrão)"
@@ -110,25 +238,6 @@ Antes de começar, certifique-se de ter:
 4. Configure os parâmetros (ex.: InstanceType, KeyName)
 5. Reconheça as capacidades IAM se necessário
 6. Crie e monitore o progresso da stack
-
-#### Via AWS CLI
-
-```bash
-# Implante a infraestrutura completa
-aws cloudformation deploy \
-  --template-file 04-EC2_S3_UserGroup.yaml \
-  --stack-name lab-foundation-stack \
-  --parameter-overrides InstanceType=t2.micro \
-  --capabilities CAPABILITY_NAMED_IAM
-```
-
-<img src="images/cli-deployment.png" alt="CLI Deployment Example" width="600"/>
-
-## 🏗️ Visão Geral da Arquitetura
-
-<img src="images/complete-architecture.png" alt="Diagrama Completo da Arquitetura" width="800"/>
-
-### Notas Importantes dos Templates
 
 #### 🔧 Requisitos de Configuração
 
@@ -148,7 +257,7 @@ Modificações Necessárias:
 
 ### 🔍 Validação de Recursos
 
-<img src="images/resource-validation.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
+<img src="images/stacks.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
 
 #### Instâncias EC2
 1. Acesse o Painel EC2
@@ -159,6 +268,9 @@ Modificações Necessárias:
 1. Acesse `http://<PublicIP>`
 2. Verifique a página de boas-vindas
 3. Teste a acessibilidade HTTP
+
+<img src="images/validaApache1.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
+<img src="images/validaApache2.png" alt="Passos de Validação de Recursos" align="right" width="400"/>
 
 #### Bucket S3
 1. Abra o Console S3
@@ -175,16 +287,6 @@ Modificações Necessárias:
 ### Criação da Stack
 <img src="images/stack.png" alt="Criação da Stack CloudFormation" width="800"/>
 
-### Visão Geral dos Recursos
-<div align="center">
-  <img src="images/ec2.png" alt="Instâncias EC2" width="400"/>
-  <img src="images/s3.png" alt="Bucket S3" width="400"/>
-</div>
-
-### Configuração IAM
-
-<img width="388" height="67" alt="image" src="https://github.com/user-attachments/assets/d4d6079e-d71e-4a33-b297-b95cd71eb516" />
-
 
 ## 🧹 Instruções de Limpeza
 
@@ -197,23 +299,6 @@ Para evitar cobranças desnecessárias da AWS:
 
 <img src="images/cleanup.png" alt="Processo de Limpeza" width="600"/>
 
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Veja como você pode ajudar:
-
-1. Faça um Fork do repositório
-2. Crie sua branch de feature
-3. Faça seus commits
-4. Envie para a branch
-5. Abra um Pull Request
-
----
-
-<div align="center">
-
-### ⭐ Favorite este repositório se ele foi útil para você! ⭐
-
-<img src="images/footer-banner.png" alt="Banner de Rodapé" width="800"/>
 
 </div>
 
